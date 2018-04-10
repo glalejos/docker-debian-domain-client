@@ -14,12 +14,17 @@ There are two integration options: PAM and SSSD. Both of them require the same c
 3. [Optionally] Run.
 
 ### Configure
-You *have to* configure three different files:
-* domain-client-installer.conf
-* domain-client-test.sh
-* domain-client-test-credentials.conf
+You **have to** configure three different files:
+* `domain-client-installer.conf`
+* `domain-client-test.sh`
+* `domain-client-test-credentials.conf`
 
 You can copy and paste the following examples in the corresponding files, and then make the appropriate modifications.
+
+Testing credentials are mandatory too. If you really want to skip that part, you can comment out the following line in the `Dockerfile`:
+```Dockefile
+RUN ["/bin/bash", "-c", "./domain-client-test.sh"]
+```
 
 #### domain-client-installer.conf
 ```bash
@@ -56,11 +61,35 @@ export LDAP_CERTIFICATE_ABS="${CERTIFICATES_DIR}${LDAP_CERTIFICATE_FILENAME}"
 ```
 
 #### domain-client-test.sh
+```bash
+# ...
+# Secret key used to encrypt testing credentials.
+ENCRYPTION_KEY=mysecret
+# ...
+```
+
 #### domain-client-test-credentials.conf
+```bash
+#! /bin/bash
+
+# Use "echo mysecret | openssl enc -aes-256-cbc -a -salt -pass pass:texttoencrypt" to encrypt data.
+
+export CLIENT_TEST_ENCRYPTED_USERNAME=...
+export CLIENT_TEST_ENCRYPTED_PASSWORD=...
+```
 
 ### Build
 
+```
+build.sh --client-type <standard | sssd> 
+```
 
 ### Run
 
-!shellcheck *.sh *.conf && ./build.sh --client-type sssd && docker run -it ewlan/client-sssd:1.0 /bin/bash
+```
+docker run -it domain/client-standard:1.0 /bin/bash
+```
+or
+```
+docker run -it domain/client-sssd:1.0 /bin/bash
+```
