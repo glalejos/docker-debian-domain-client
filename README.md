@@ -1,3 +1,6 @@
+# Relocation notice
+
+Moved to https://gitlab.com/glalejos.
 
 # docker-debian-domain-client
 
